@@ -1,15 +1,45 @@
 import { GraphQLServer } from 'graphql-yoga'
 
-// Scalar types - String, Boolean, Int, Float, ID
+const users = [{
+    id: '1',
+    name: "Lanre",
+    email: 'lan@gmail.com',
+    age: 44
+} , {
+    id: '2',
+    name: "Dare",
+    email: 'dan@gmail.com',
+    age: 42
+}, {
+    id: '3',
+    name: "Dre",
+    email: 'den@gmail.com',
+    age: 34
+}]
 
+const posts = [{
+    id: '1',
+    title: 'Hello World',
+    body: 'This is the famous slug to new in programming!',
+    published: true
+}, {
+    id: '2',
+    title: 'How are you',
+    body: 'This is the famous greeting to show familiarity although the question isn"t actually about how you feel!',
+    published: true
+}, {
+    id: '1',
+    title: 'What Next',
+    body: 'This is the famous question to propel to action!',
+    published: false
+}]
 // Type definitions (schema)
 const typeDefs = `
     type Query {
-        greeting(name: String): String!
+        users(query: String): [User!]!
         me: User!
-        grades: [Int!]!
-        post: Post!
-        add(numbers: [Float!]!): Float!
+        posts(query: String): [Post!]!
+        post(query: String!): Post!
     }
 
     type User {
@@ -30,12 +60,6 @@ const typeDefs = `
 // Resolvers
 const resolvers = {
     Query: {
-        greeting(parent, args, ctx, info) {
-            return `Hello ${args.name}`
-        },
-        grades(parent, args, ctx, info) {
-            return [90, 88,99]
-        },
         me() {
             return {
                 id: '123456',
@@ -43,19 +67,22 @@ const resolvers = {
                 email: 'mike@gmail.com'
             }
         },
-        post() {
-            return {
-                id: '8765433',
-                title: 'he lives on!',
-                body: 'here',
-                published: false
-            }
+        posts(parent, args, ctx, info) {
+            if (!args.query) return posts
+            
+            return posts.filter(post => {
+            const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
+            const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
+            return isBodyMatch || isTitleMatch
+            })
         },
-        add(parent, args, ctx, info) {
-            console.log(args)
-            if (args.length === 0) return 0
+        post(parent, args, ctx, info) {
+            return posts.filter(post => post.id === args.query)
+        },
+        users(parent, args, ctx, info) {
+            if (!args.query) return users
 
-            return args.numbers.reduce((acc, val) => acc + val)
+            return users.filter(user => user.name.toLowerCase().includes(args.query.toLowerCase()))
         }
     }
 }
