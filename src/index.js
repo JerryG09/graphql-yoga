@@ -21,17 +21,20 @@ const posts = [{
     id: '1',
     title: 'Hello World',
     body: 'This is the famous slug to new in programming!',
-    published: true
+    published: true,
+    author: '1'
 }, {
     id: '2',
     title: 'How are you',
     body: 'This is the famous greeting to show familiarity although the question isn"t actually about how you feel!',
-    published: true
+    published: true,
+    author: '2'
 }, {
     id: '1',
     title: 'What Next',
     body: 'This is the famous question to propel to action!',
-    published: false
+    published: false,
+    author: '2'
 }]
 // Type definitions (schema)
 const typeDefs = `
@@ -54,6 +57,7 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
     }
 `
 
@@ -83,6 +87,11 @@ const resolvers = {
             if (!args.query) return users
 
             return users.filter(user => user.name.toLowerCase().includes(args.query.toLowerCase()))
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return users.find(user => user.id === parent.author)
         }
     }
 }
